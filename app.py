@@ -23,13 +23,14 @@ from langchain_core.messages import (
     ToolMessage
 )
 
-from agent import get_agent
+from agent import get_agent, get_available_models
 from database import (
     init_db,
     save_chat_message,
     get_chat_history,
     create_or_update_conversation,
-    list_conversations
+    list_conversations,
+    delete_conversation
 )
 
 from rag import add_document_to_rag
@@ -52,6 +53,13 @@ async def home(request: Request):
         name="index.html",
         context={}
     )
+
+
+@app.get("/models")
+async def models():
+    return {
+        "models": get_available_models()
+    }
 
 
 @app.get("/conversations")
@@ -219,7 +227,7 @@ async def chat_stream(request: Request):
 
     user_message = data.get("message", "")
     thread_id = data.get("thread_id", "default")
-    selected_model = data.get("model", "gemini-3.5-flash")
+    selected_model = data.get("model")
 
     if not user_message.strip():
         return JSONResponse(
@@ -283,6 +291,25 @@ async def chat_stream(request: Request):
         }
     )
 
+
+@app.delete("/conversations/{thread_id}")
+async def delete_chat(thread_id: str):
+    try:
+        delete_conversation(thread_id)
+
+        return {
+            "success": True,
+            "message": "Chat deleted successfully."
+        }
+
+    except Exception as e:
+        return JSONResponse(
+            {
+                "success": False,
+                "message": str(e)
+            },
+            status_code=500
+        )
 
 
 

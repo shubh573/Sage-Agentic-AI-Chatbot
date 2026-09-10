@@ -197,3 +197,39 @@ def search_memory(thread_id: str, query: str):
 
     finally:
         db.close()
+
+
+def delete_conversation(thread_id: str):
+    db = SessionLocal()
+
+    try:
+        # Delete all chat messages
+        db.query(ChatMessage).filter(
+            ChatMessage.thread_id == thread_id
+        ).delete(synchronize_session=False)
+
+        # Delete all long-term memories associated with this thread
+        db.query(LongTermMemory).filter(
+            LongTermMemory.thread_id == thread_id
+        ).delete(synchronize_session=False)
+
+        # Delete conversation
+        conversation = (
+            db.query(Conversation)
+            .filter(Conversation.thread_id == thread_id)
+            .first()
+        )
+
+        if conversation:
+            db.delete(conversation)
+
+        db.commit()
+
+        return True
+
+    except Exception:
+        db.rollback()
+        raise
+
+    finally:
+        db.close()

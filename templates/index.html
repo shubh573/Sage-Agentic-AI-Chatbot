@@ -822,9 +822,6 @@
             <button class="send-btn" id="sendBtn" onclick="sendMessage()">➜</button>
         </div>
 
-        <div class="notice" id="noticeText">
-            Sage can make mistakes. Check important info.
-        </div>
     </div>
 </main>
 
@@ -1001,10 +998,6 @@
         }
 
         statusText.textContent = "Ready";
-
-        if (noticeText) {
-            noticeText.textContent = "Sage can make mistakes. Check important info.";
-        }
 
         messageInput.focus();
     }
